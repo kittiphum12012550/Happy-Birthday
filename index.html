@@ -11,17 +11,30 @@
         body {
             font-family: 'Kanit', sans-serif;
             margin: 0;
-            overflow: hidden; /* Prevent scrollbars from confetti */
+            overflow-x: hidden; /* Prevent horizontal scrolling on mobile */
+            min-height: 100vh; /* Ensure full height on mobile browsers */
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            text-align: center;
+            position: relative;
         }
 
         h1 {
             font-family: 'Prompt', sans-serif;
             text-shadow: 2px 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .main-container {
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
 
         .floating {
@@ -44,33 +57,54 @@
             100% { transform: scale(1); }
         }
 
+        /* Glassmorphism Effect */
         .glass-card {
-            background: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        /* Modal Overlay to ensure perfect centering on mobile */
+        #message-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            pointer-events: none; /* Let clicks pass through when hidden */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #message-overlay.show {
+            pointer-events: auto;
+            opacity: 1;
         }
 
         #message-card {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            width: 90%;
+            max-width: 400px;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        #message-card.show {
-            opacity: 1;
-            transform: translateY(0);
+        #message-overlay.show #message-card {
+            transform: translateY(0) scale(1);
         }
     </style>
 </head>
 <body>
 
-    <div class="relative w-full max-w-2xl px-4 flex flex-col items-center justify-center text-center z-10">
-        
+    <div class="main-container">
         <!-- Header -->
-        <h1 class="text-5xl md:text-7xl text-white mb-6 animate-bounce" style="animation-duration: 2s;">
+        <h1 class="text-5xl md:text-6xl text-white mb-6 animate-bounce" style="animation-duration: 2s;">
             สุขสันต์วันเกิด!
         </h1>
 
@@ -84,36 +118,37 @@
             <div id="gift-icon" class="text-7xl md:text-8xl select-none transition-transform duration-300 transform hover:scale-110">
                 🎁
             </div>
-            <p id="gift-text" class="text-white font-bold mt-4 bg-white/30 px-4 py-2 rounded-full shadow-sm text-lg md:text-xl">
-                คลิกที่กล่องของขวัญสิ! 🎁
+            <p id="gift-text" class="text-pink-600 font-bold mt-4 bg-white/50 px-5 py-2 rounded-full shadow-sm text-lg backdrop-blur-sm border border-white/50">
+                แตะที่กล่องของขวัญสิ! 🎁
             </p>
         </div>
+    </div>
 
-        <!-- Hidden Personalized Message -->
-        <div id="message-card" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md p-8 glass-card text-gray-800">
-            <h2 class="text-3xl font-bold text-pink-500 mb-4" style="font-family: 'Prompt', sans-serif;">เซอร์ไพรส์! 🎉</h2>
-            <p class="text-xl leading-relaxed mb-6 font-semibold">
-                ขอให้มีความสุขมากๆ สุขภาพร่างกายแข็งแรง คิดสิ่งใดก็ขอให้สมปรารถนา และมีแต่รอยยิ้มในทุกๆ วันนะ 🎂✨
+    <!-- Hidden Personalized Message (Perfectly Centered Overlay) -->
+    <div id="message-overlay" class="hidden">
+        <div id="message-card" class="p-8 glass-card text-gray-800 text-center">
+            <h2 class="text-3xl font-bold text-pink-600 mb-4" style="font-family: 'Prompt', sans-serif;">เซอร์ไพรส์! 🎉</h2>
+            <p class="text-xl leading-relaxed mb-8 font-medium text-gray-800">
+                ขอให้มีความสุขมากๆ คิดสิ่งใดขอให้สมปรารถนา สุขภาพร่างกายแข็งแรงนะ!
             </p>
-            <button id="close-btn" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md text-lg">
+            <button id="close-btn" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg text-lg transform hover:scale-105 active:scale-95">
                 รับพร!
             </button>
         </div>
-
     </div>
 
     <script>
         const giftContainer = document.getElementById('gift-container');
         const giftIcon = document.getElementById('gift-icon');
         const giftText = document.getElementById('gift-text');
-        const messageCard = document.getElementById('message-card');
+        const messageOverlay = document.getElementById('message-overlay');
         const closeBtn = document.getElementById('close-btn');
 
-        // Function to shoot confetti
+        // Function to shoot confetti optimized for mobile screens
         function shootConfetti() {
             var duration = 3 * 1000;
             var animationEnd = Date.now() + duration;
-            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            var defaults = { startVelocity: 25, spread: 360, ticks: 60, zIndex: 100 };
 
             function randomInRange(min, max) {
                 return Math.random() * (max - min) + min;
@@ -126,11 +161,15 @@
                     return clearInterval(interval);
                 }
 
-                var particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { particleCount,
+                var particleCount = 40 * (timeLeft / duration);
+                
+                // Shoot from left and right edges
+                confetti(Object.assign({}, defaults, { 
+                    particleCount,
                     origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
                 }));
-                confetti(Object.assign({}, defaults, { particleCount,
+                confetti(Object.assign({}, defaults, { 
+                    particleCount,
                     origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
                 }));
             }, 250);
@@ -138,7 +177,6 @@
 
         // Handle Gift Click
         giftContainer.addEventListener('click', () => {
-            // Change gift icon to open box or party popper
             giftIcon.innerText = '🎉';
             giftIcon.classList.remove('hover:scale-110');
             giftContainer.classList.remove('pulse-hover', 'cursor-pointer');
@@ -149,24 +187,24 @@
 
             // Show Message Card
             setTimeout(() => {
-                messageCard.classList.remove('hidden');
-                // Trigger reflow to restart animation
-                void messageCard.offsetWidth;
-                messageCard.classList.add('show');
-            }, 300);
+                messageOverlay.classList.remove('hidden');
+                // Trigger reflow
+                void messageOverlay.offsetWidth;
+                messageOverlay.classList.add('show');
+            }, 400);
         });
 
         // Handle Close Button
         closeBtn.addEventListener('click', () => {
-            messageCard.classList.remove('show');
+            messageOverlay.classList.remove('show');
             setTimeout(() => {
-                messageCard.classList.add('hidden');
-                // Reset gift box so they can click again if they want
+                messageOverlay.classList.add('hidden');
+                // Reset gift box
                 giftIcon.innerText = '🎁';
                 giftContainer.classList.add('pulse-hover', 'cursor-pointer');
                 giftText.style.opacity = '1';
                 giftIcon.classList.add('hover:scale-110');
-            }, 500); // Wait for transition to finish
+            }, 500); 
         });
     </script>
 </body>
